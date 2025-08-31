@@ -1,4 +1,3 @@
-import './App.css'
 import WelcomeMessage from './components/WelcomeMessage';
 
 function App() {
@@ -6,7 +5,8 @@ function App() {
     <>
       <WelcomeMessage />
     </>
-  )
+  );
 }
 
 export default App;
+
