@@ -9,9 +9,10 @@ function Footer() {
         marginTop: "20px",
       }}
     >
-      <p>© 2025 My Company. All rights reserved.</p>
+      <p>© 2025 My Favorite Cities. All rights reserved.</p>
     </footer>
   );
 }
 
 export default Footer;
+

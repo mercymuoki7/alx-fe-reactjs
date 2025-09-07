@@ -8,14 +8,15 @@ function MainContent() {
       }}
     >
       <h2 style={{ textAlign: "center", color: "#333" }}>
-        Welcome to My Company
+        Welcome to My Favorite Cities
       </h2>
       <p style={{ lineHeight: "1.6", color: "#555" }}>
-        Here is some information about what we do...
+        I love to visit New York, Paris, and Tokyo.
       </p>
     </main>
   );
 }
 
 export default MainContent;
+
 
