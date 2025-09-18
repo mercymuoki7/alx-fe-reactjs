@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { fetchUser } from "./services/api";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [username, setUsername] = useState("");
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState("");
+
+  const handleSearch = async () => {
+    try {
+      setError("");
+      const data = await fetchUser(username);
+      setUserData(data);
+    } catch (err) {
+      setUserData(null);
+      setError("User not found");
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>GitHub User Search</h1>
+      <input
+        type="text"
+        placeholder="Enter GitHub username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <button onClick={handleSearch}>Search</button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {userData && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>{userData.login}</h2>
+          <img
+            src={userData.avatar_url}
+            alt={userData.login}
+            width="100"
+            style={{ borderRadius: "50%" }}
+          />
+          <p>{userData.bio || "No bio available"}</p>
+          <a href={userData.html_url} target="_blank" rel="noreferrer">
+            View Profile
+          </a>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
