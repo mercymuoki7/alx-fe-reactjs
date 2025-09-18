@@ -1,12 +1,14 @@
-import RecipeList from './components/RecipeList';
-import AddRecipeForm from './components/AddRecipeForm';
+import { useEffect } from "react";
+import { testApi } from "./services/api";
 
 function App() {
+  useEffect(() => {
+    testApi();
+  }, []);
+
   return (
     <div>
-      <h1>Recipe Sharing App</h1>
-      <AddRecipeForm />
-      <RecipeList />
+      <h1>GitHub User Search App</h1>
     </div>
   );
 }
