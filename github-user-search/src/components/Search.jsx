@@ -6,6 +6,7 @@ const Search = () => {
   const [location, setLocation] = useState("");
   const [repos, setRepos] = useState("");
   const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,10 +15,11 @@ const Search = () => {
     setLoading(true);
     setError("");
     setUsers([]);
+    setPage(1);
 
     try {
       if (location || repos) {
-        const results = await fetchAdvancedUsers(username, location, repos);
+        const results = await fetchAdvancedUsers(username, location, repos, 1);
         setUsers(results);
       } else if (username) {
         const user = await fetchUserData(username.trim());
@@ -25,6 +27,20 @@ const Search = () => {
       }
     } catch {
       setError("Looks like we cant find the user");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const results = await fetchAdvancedUsers(username, location, repos, nextPage);
+      setUsers([...users, ...results]);
+      setPage(nextPage);
+    } catch {
+      setError("No more results found");
     } finally {
       setLoading(false);
     }
@@ -69,33 +85,45 @@ const Search = () => {
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         {users.length > 0 && (
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {users.map((u) => (
-              <li
-                key={u.id}
-                className="border rounded-lg p-4 shadow hover:shadow-md"
-              >
-                <img
-                  src={u.avatar_url}
-                  alt={u.login}
-                  className="w-16 h-16 rounded-full mb-2"
-                />
-                <h3 className="font-semibold">{u.login}</h3>
-                {u.location && <p>📍 {u.location}</p>}
-                {u.public_repos !== undefined && (
-                  <p>Repos: {u.public_repos}</p>
-                )}
-                <a
-                  href={u.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline"
+          <>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {users.map((u) => (
+                <li
+                  key={u.id}
+                  className="border rounded-lg p-4 shadow hover:shadow-md"
                 >
-                  View Profile
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <img
+                    src={u.avatar_url}
+                    alt={u.login}
+                    className="w-16 h-16 rounded-full mb-2"
+                  />
+                  <h3 className="font-semibold">{u.login}</h3>
+                  {u.location && <p>📍 {u.location}</p>}
+                  {u.public_repos !== undefined && (
+                    <p>Repos: {u.public_repos}</p>
+                  )}
+                  <a
+                    href={u.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    View Profile
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {location || repos ? (
+              <div className="mt-4 text-center">
+                <button
+                  onClick={loadMore}
+                  className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
+                >
+                  Load More
+                </button>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </div>

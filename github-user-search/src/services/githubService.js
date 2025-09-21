@@ -11,7 +11,7 @@ export const fetchUserData = async (username) => {
 };
 
 // Advanced search using GitHub Search API
-export const fetchAdvancedUsers = async (username, location, repos) => {
+export const fetchAdvancedUsers = async (username, location, repos, page = 1) => {
   try {
     let query = "";
     if (username) query += `${username} in:login `;
@@ -19,7 +19,7 @@ export const fetchAdvancedUsers = async (username, location, repos) => {
     if (repos) query += `repos:>=${repos}`;
 
     const response = await axios.get(
-      `https://api.github.com/search/users?q=${encodeURIComponent(query)}`
+      `https://api.github.com/search/users?q=${encodeURIComponent(query)}&page=${page}&per_page=10`
     );
     return response.data.items;
   } catch (error) {
