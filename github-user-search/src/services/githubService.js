@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "https://api.github.com";
 
-// Basic fetch by username
+// Basic fetch by username (single user profile)
 export const fetchUserData = async (username) => {
   if (!username) throw new Error("username required");
   try {
@@ -13,16 +13,24 @@ export const fetchUserData = async (username) => {
   }
 };
 
-// Advanced search (username + location + minRepos)
-export const fetchAdvancedUsers = async (username, location, minRepos, page = 1, per_page = 10) => {
+// Advanced search (username, location, minRepos)
+export const fetchAdvancedUsers = async (
+  username,
+  location,
+  minRepos,
+  page = 1,
+  per_page = 10
+) => {
   try {
     const parts = [];
-    if (username) parts.push(`${username} in:login`);
+    if (username) parts.push(username); // 🔑 plain username, no "in:login"
     if (location) parts.push(`location:${location}`);
     if (minRepos) parts.push(`repos:>=${minRepos}`);
 
-    const query = parts.join(' ');
-    const res = await axios.get(`${BASE_URL}/search/users?q=${encodeURIComponent(query)}&page=${page}&per_page=${per_page}`);
+    const query = parts.join(" ");
+    const res = await axios.get(
+      `${BASE_URL}/search/users?q=${encodeURIComponent(query)}&page=${page}&per_page=${per_page}`
+    );
     return res.data.items;
   } catch (err) {
     throw new Error("No matching users found");
@@ -40,9 +48,14 @@ export const fetchUserDetails = async (username) => {
 };
 
 // Combined: get search results then fetch details for each user
-export const fetchAdvancedUsersDetailed = async (username, location, minRepos, page = 1, per_page = 10) => {
+export const fetchAdvancedUsersDetailed = async (
+  username,
+  location,
+  minRepos,
+  page = 1,
+  per_page = 10
+) => {
   const items = await fetchAdvancedUsers(username, location, minRepos, page, per_page);
-  const promises = items.map((it) => fetchUserDetails(it.login));
-  const detailed = await Promise.all(promises);
+  const detailed = await Promise.all(items.map((it) => fetchUserDetails(it.login)));
   return detailed;
 };
