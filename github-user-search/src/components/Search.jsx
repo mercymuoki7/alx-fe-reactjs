@@ -1,23 +1,28 @@
 import React, { useState } from "react";
-import { fetchUserData } from "../services/githubService";
+import { fetchUserData, fetchAdvancedUsers } from "../services/githubService";
 
 const Search = () => {
   const [username, setUsername] = useState("");
-  const [user, setUser] = useState(null);
+  const [location, setLocation] = useState("");
+  const [repos, setRepos] = useState("");
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!username.trim()) return;
-
     setLoading(true);
     setError("");
-    setUser(null);
+    setUsers([]);
 
     try {
-      const data = await fetchUserData(username.trim());
-      setUser(data);
+      if (location || repos) {
+        const results = await fetchAdvancedUsers(username, location, repos);
+        setUsers(results);
+      } else if (username) {
+        const user = await fetchUserData(username.trim());
+        setUsers([user]);
+      }
     } catch {
       setError("Looks like we cant find the user");
     } finally {
@@ -26,31 +31,71 @@ const Search = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <form onSubmit={handleSubmit}>
+    <div className="p-6 max-w-2xl mx-auto">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+      >
         <input
           type="text"
-          placeholder="Enter GitHub username"
+          placeholder="GitHub Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          style={{ padding: "8px", fontSize: "14px" }}
+          className="border rounded p-2 flex-1"
         />
-        <button type="submit" style={{ marginLeft: "8px", padding: "8px" }}>
+        <input
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="border rounded p-2 flex-1"
+        />
+        <input
+          type="number"
+          placeholder="Min Repos"
+          value={repos}
+          onChange={(e) => setRepos(e.target.value)}
+          className="border rounded p-2 w-32"
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Search
         </button>
       </form>
 
-      <div style={{ marginTop: "20px" }}>
+      <div className="mt-6">
         {loading && <p>Loading...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {user && (
-          <div>
-            <img src={user.avatar_url} alt={user.login} width="100" />
-            <h3>{user.name || user.login}</h3>
-            <a href={user.html_url} target="_blank" rel="noopener noreferrer">
-              View Profile
-            </a>
-          </div>
+        {error && <p className="text-red-500">{error}</p>}
+        {users.length > 0 && (
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {users.map((u) => (
+              <li
+                key={u.id}
+                className="border rounded-lg p-4 shadow hover:shadow-md"
+              >
+                <img
+                  src={u.avatar_url}
+                  alt={u.login}
+                  className="w-16 h-16 rounded-full mb-2"
+                />
+                <h3 className="font-semibold">{u.login}</h3>
+                {u.location && <p>📍 {u.location}</p>}
+                {u.public_repos !== undefined && (
+                  <p>Repos: {u.public_repos}</p>
+                )}
+                <a
+                  href={u.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  View Profile
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
