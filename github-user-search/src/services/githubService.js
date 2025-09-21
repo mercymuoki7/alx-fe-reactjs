@@ -1,28 +1,32 @@
 import axios from "axios";
 
-// Basic single-user fetch
+const BASE_URL = "https://api.github.com";
+
+// Basic search by username
 export const fetchUserData = async (username) => {
   try {
-    const response = await axios.get(`https://api.github.com/users/${username}`);
+    const response = await axios.get(`${BASE_URL}/users/${username}`);
     return response.data;
   } catch (error) {
     throw new Error("User not found");
   }
 };
 
-// Advanced search using GitHub Search API
-export const fetchAdvancedUsers = async (username, location, repos, page = 1) => {
+// Advanced search (username + location + minRepos)
+export const fetchAdvancedUsers = async (username, location, minRepos) => {
   try {
-    let query = "";
-    if (username) query += `${username} in:login `;
-    if (location) query += `location:${location} `;
-    if (repos) query += `repos:>=${repos}`;
+    let query = username ? `${username} in:login` : "";
 
-    const response = await axios.get(
-      `https://api.github.com/search/users?q=${encodeURIComponent(query)}&page=${page}&per_page=10`
-    );
+    if (location) {
+      query += ` location:${location}`;
+    }
+    if (minRepos) {
+      query += ` repos:>=${minRepos}`;
+    }
+
+    const response = await axios.get(`${BASE_URL}/search/users?q=${query}`);
     return response.data.items;
   } catch (error) {
-    throw new Error("No matching users found");
+    throw new Error("Error fetching advanced search results");
   }
 };
