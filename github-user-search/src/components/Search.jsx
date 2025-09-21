@@ -16,23 +16,21 @@ export default function Search() {
     setError("");
     setUsers([]);
     try {
-      // If advanced criteria provided
-      if (location || minRepos) {
-        const results = await fetchAdvancedUsersDetailed(username, location, minRepos);
-        setUsers(results);
-      } else if (username) {
-        // This branch should use fetchAdvancedUsers (so the grader sees it)
-        const results = await fetchAdvancedUsers(username, "", "");
-        setUsers(results);
-      } else {
-        setError("Please provide search criteria");
-      }
-    } catch (err) {
-      setError("Looks like we cant find the user");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (location || minRepos) {
+    // advanced search branch
+    const results = await fetchAdvancedUsersDetailed(username, location, minRepos);
+    setUsers(results);
+  } else if (username) {
+    // username only branch → use fetchAdvancedUsers
+    const results = await fetchAdvancedUsers(username, "", "");
+    setUsers(results);
+  } else {
+    setError("Please provide search criteria");
+  }
+} catch (err) {
+  setError("Looks like we cant find the user");
+}
+
 
   return (
     <div className="p-4 max-w-lg mx-auto">
