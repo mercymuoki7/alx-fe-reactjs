@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchUserData, fetchAdvancedUsers, fetchAdvancedUsersDetailed } from "../services/githubService";
+import { fetchAdvancedUsers, fetchAdvancedUsersDetailed } from "../services/githubService";
 import UserCard from "./UserCard";
 
 export default function Search() {
@@ -15,14 +15,13 @@ export default function Search() {
     setLoading(true);
     setError("");
     setUsers([]);
+
     try {
   if (location || minRepos) {
-    // advanced search branch
     const results = await fetchAdvancedUsersDetailed(username, location, minRepos);
     setUsers(results);
   } else if (username) {
-    // username only branch → use fetchAdvancedUsers
-    const results = await fetchAdvancedUsers(username, "", "");
+    const results = await fetchAdvancedUsers(username);
     setUsers(results);
   } else {
     setError("Please provide search criteria");
@@ -30,6 +29,7 @@ export default function Search() {
 } catch (err) {
   setError("Looks like we cant find the user");
 }
+
 
 
   return (
